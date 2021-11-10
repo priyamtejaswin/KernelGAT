@@ -13,9 +13,8 @@ The base training data (from the FEVER task) and the evidences used by KGAT can 
 }
 ```
     
-### Retrieval results for claim verification.
+### Retrieval files for claim verification.
 * ``bert_train.json; bert_dev.json`` are the data of training and development sets for claim verification training with BERT based retrieval. The golden evidence is also added to these files. 
-* `` esim_eval.json; esim_test.json`` are the data of development and testing sets for claim verification inference with ESIM based retrieval. The golden evidence is not added. 
 * `` bert_eval.json; bert_test.json`` are the data of development and testing sets for claim verification inference with BERT based retrieval. The golden evidence is not added. 
     Data format:
     ```
@@ -30,21 +29,6 @@ The base training data (from the FEVER task) and the evidences used by KGAT can 
         evidence_id,
         evidence_content,
         retrieval_score
-    ]
-    ```
-* ``golden_train.json; golden_dev.json`` contain all golden sentences.
-    Data format:
-    ```
-    {"evidence": [
-        ["Andrew_Kevin_Walker", 
-        0, "Andrew Kevin Walker ..."]]}
-    ```
-    For evidence filed,
-    ```
-    [
-        DocumentName(WikiTitle),
-        evidence_id,
-        evidence_content
     ]
     ```
 
