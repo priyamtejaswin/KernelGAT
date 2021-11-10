@@ -35,25 +35,41 @@ KernelGAT/
 ```
 
 ## Reproducing results
+Follow these steps to either re-train the KGAT model from scratch, or use the existing checkpoint to generate predictions and compute metrics.
 
+### Re-training
+```
+cd kgat/
+bash train.sh
+```
+The `train.sh` script can accept different hyperparameters. The complete list is in `kgat/train.py`.
+
+### Inference
+We provide two weight files (one from our retraining `model.new.best.pt` and the other from the KGAT authors `model.best.pt`).
+```
+cd kgat/
+bash test.sh
+```
+The `test.sh` script can use different checkpoints. This command will generate the predictions and store in `kgat/output/dev.json`.
+**Note that this does not use the GPU and will take upto 30 mins.**
 
 ## Results
+We provide our predictions in `kgat/output/dev.json`. These can be used to generate the two metrics (**label accuracy** and **FEVER-score**):
+```
+$ python fever_score_test.py --predicted_labels ./output/dev.json  --predicted_evidence ../data/bert_eval.json --actual ../data/dev_eval.json
++-------------+----------------+--------------------+-----------------+-------------+
+| FEVER Score | Label Accuracy | Evidence Precision | Evidence Recall | Evidence F1 |
++-------------+----------------+--------------------+-----------------+-------------+
+|    0.7779   |     0.7988     |       0.2729       |      0.9437     |    0.4234   |
++-------------+----------------+--------------------+-----------------+-------------+
+```
 
-| User | Pre-train Model| Label Accuracy| FEVER Score |
-| -------- | -------- | --------  | --------  |
-[GEAR_single](https://arxiv.org/pdf/1908.01843.pdf)|BERT \(Base\)|0\.7160|0\.6710|
-|[a.soleimani.b](https://arxiv.org/pdf/1910.02655.pdf)|BERT \(Large\)|0\.7186|0\.6966 |
-|KGAT |RoBERTa \(Large\)|0\.7407|0\.7038|
+Here are the results compared agains the scores in the KGAT paper (last line in Table 2)
 
-
-KGAT performance with different pre-trained language model.
-
-| Pre-train Model| Label Accuracy| FEVER Score |
-| --------  | -------- | -------- |
-|BERT \(Base\)|0\.7281|0\.6940|
-|BERT \(Large\)|0\.7361|0\.7024|
-|RoBERTa \(Large\)|0\.7407|0\.7038|
-|[CorefBERT](https://arxiv.org/abs/2004.06870) \(RoBERT Large\)|0\.7596|0\.7230|
+| Model                     | Label Accuracy | FEVER Score |
+|---------------------------|----------------|-------------|
+| KGAT SoTA (Roberta-Large) | 78.29          | 76.11       |
+| Ours (Roberta-Large)      | 79.88          | 77.79       |
 
 
 ## Credit and citation
