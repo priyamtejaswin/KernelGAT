@@ -10,13 +10,32 @@ The repository is mostly the same (credit to the original KGAT authors for shari
 You can refer to the original repository (to access the original code, weights, etc) [here](https://github.com/thunlp/KernelGAT). For more information about the FEVER, please refer to [fever.ai](http://fever.ai).
 
 ## Setup and installation
+```
+git clone https://github.com/priyamtejaswin/KernelGAT.git
+cd KernelGAT
+conda env create --file env.yml
+conda activate kgat-reproduce
+pip install torch==1.8.2+cu111 torchvision==0.9.2+cu111 torchaudio==0.8.2 -f https://download.pytorch.org/whl/lts/1.8/torch_lts.html
+```
 
+## Data and checkpoints
+Download the training data and retrieved evidences from [this link](https://thunlp.oss-cn-qingdao.aliyuncs.com/KernelGAT/FEVER/KernelGAT.zip).
+* Unzip, and copy all contents from the unzipped `data` dir to `KernelGAT/data/`.
 
-## Data and Checkpoint
-* All data and BERT based chechpoints can be found at [Ali Drive](https://thunlp.oss-cn-qingdao.aliyuncs.com/KernelGAT/FEVER/KernelGAT.zip).
-* RoBERTa based models and chechpoints can be found at [Ali Drive](https://thunlp.oss-cn-qingdao.aliyuncs.com/KernelGAT/FEVER/KernelGAT_roberta_large.zip).
+You can download our fine-tuned KGAT model weights and the original KGAT model weights from [this Google Drive link](https://drive.google.com/file/d/13YKrZfgW6g3GpI_7VKdPOusYxGMgmMv9/view?usp=sharing) (2.4GB total).
+Download the the zip file in this directory, and unzip **in this directory**. The structure should be:
+```
+KernelGAT/
+    data/
+    kgat/
+    checkpoint/
+        kgat
+    LICENSE
+    ...
+```
 
 ## Reproducing results
+
 
 ## Results
 
