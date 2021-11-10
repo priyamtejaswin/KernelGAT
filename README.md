@@ -1,48 +1,24 @@
 # 11-711 Assignment 3 (Aditya, Pratik, Priyam)
->>> # Kernel Graph Attention Network (KGAT)
->>> There are source codes for [Fine-grained Fact Verification with Kernel Graph Attention Network](https://www.aclweb.org/anthology/2020.acl-main.655.pdf).
+
+This repository reproduces the results from [Fine-grained Fact Verification with Kernel Graph Attention Network](https://www.aclweb.org/anthology/2020.acl-main.655.pdf), [(original codebase)](https://github.com/thunlp/KernelGAT) on the FEVER 1.0 dataset as part of the Fall 2021 11-711 course at CMU.
 
 ![model](https://github.com/thunlp/KernelGAT/blob/master/model.png)
 
-For more information about the FEVER 1.0 shared task can be found on this [website](http://fever.ai).
+The repository is mostly the same (credit to the original KGAT authors for sharing a highly reproducible and accessible codebase). The changes/additions are listed below:
+* 
 
-## 😃 What's New
-[Fact Extraction and Verification with SCIFACT](https://scifact.apps.allenai.org)
+You can refer to the original repository (to access the original code, weights, etc) [here](https://github.com/thunlp/KernelGAT). For more information about the FEVER, please refer to [fever.ai](http://fever.ai).
 
-The shared task introduces scientific claim verification for helping scientists, clinicians, and public to verify the credibility of such claims with scientific literature, especially for the claims related to COVID-19. \
-  [>> Reproduce Our Results](./scikgat) [>> About SCIFACT Dataset](https://www.aclweb.org/anthology/2020.emnlp-main.609.pdf) [>> Our Paper](https://www.aclweb.org/anthology/2020.findings-emnlp.216)
-
-
-## Requirement
-* Python 3.X
-* fever_score
-* Pytorch
-* pytorch_pretrained_bert
-* transformers
+## Setup and installation
 
 
 ## Data and Checkpoint
 * All data and BERT based chechpoints can be found at [Ali Drive](https://thunlp.oss-cn-qingdao.aliyuncs.com/KernelGAT/FEVER/KernelGAT.zip).
 * RoBERTa based models and chechpoints can be found at [Ali Drive](https://thunlp.oss-cn-qingdao.aliyuncs.com/KernelGAT/FEVER/KernelGAT_roberta_large.zip).
 
-## Retrieval Model
-* BERT based ranker.
-* Go to the ``retrieval_model`` folder for more information.
-
-
-## Pretrain Model
-* Pre-train BERT with claim-evidence pairs.
-* Go to the ``pretrain`` folder for more information.
-
-
-## KGAT Model
-* Our KGAT model.
-* Go to the ``kgat`` folder for more information.
-
+## Reproducing results
 
 ## Results
-The results are all on [Codalab leaderboard](https://competitions.codalab.org/competitions/18814#results).
-
 
 | User | Pre-train Model| Label Accuracy| FEVER Score |
 | -------- | -------- | --------  | --------  |
@@ -61,9 +37,8 @@ KGAT performance with different pre-trained language model.
 |[CorefBERT](https://arxiv.org/abs/2004.06870) \(RoBERT Large\)|0\.7596|0\.7230|
 
 
-
-
-## Citation
+## Credit and citation
+Credit to the original authors for sharing their code, data and results. Please cite their original works if you choose to use any part of this, or the original repo.
 ```
 @inproceedings{liu2020kernel,
   title={Fine-grained Fact Verification with Kernel Graph Attention Network},
@@ -80,8 +55,5 @@ KGAT performance with different pre-trained language model.
    year={2020}
 }
 ```
-## Contact
-If you have questions, suggestions and bug reports, please email:
-```
-liuzhenghao0819@gmail.com
-```
+## Contact and issues
+Please raise an issue on this repository and one of us will get back to you.
