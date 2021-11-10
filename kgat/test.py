@@ -2,15 +2,21 @@ import random, os
 import argparse
 import numpy as np
 import torch
+import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from tqdm import tqdm
 from torch.autograd import Variable
-from pytorch_pretrained_bert.tokenization import whitespace_tokenize, BasicTokenizer, BertTokenizer
+from pytorch_pretrained_bert.optimization import BertAdam
+from transformers import RobertaTokenizer
+from models import inference_model
+from data_loader import DataLoader
+from modeling_roberta import BertForSequenceEncoder
+from torch.nn import NLLLoss
+import logging
+
 
 from data_loader import DataLoaderTest
-from bert_model import BertForSequenceEncoder
-from pytorch_pretrained_bert.optimization import BertAdam
 import logging
 import json
 import random, os
@@ -23,17 +29,18 @@ logger = logging.getLogger(__name__)
 
 
 def eval_model(model, label_list, validset_reader, outdir, name):
-    outpath = outdir + name
+    outpath = os.path.join(outdir, name)
+    with torch.no_grad():
+        with open(outpath, "w") as f:
+            for index, data in enumerate(validset_reader):
+                inputs, ids = data
+                logits = model(inputs)
+                preds = logits.max(1)[1].tolist()
+                assert len(preds) == len(ids)
+                for step in range(len(preds)):
+                    instance = {"id": ids[step], "predicted_label": label_list[preds[step]]}
+                    f.write(json.dumps(instance) + "\n")
 
-    with open(outpath, "w") as f:
-        for index, data in enumerate(validset_reader):
-            inputs, ids = data
-            logits = model(inputs)
-            preds = logits.max(1)[1].tolist()
-            assert len(preds) == len(ids)
-            for step in range(len(preds)):
-                instance = {"id": ids[step], "predicted_label": label_list[preds[step]]}
-                f.write(json.dumps(instance) + "\n")
 
 
 
@@ -42,13 +49,13 @@ if __name__ == "__main__":
     parser.add_argument('--test_path', help='train path')
     parser.add_argument('--name', help='train path')
     parser.add_argument('--test_origin_path', help='train path')
-    parser.add_argument("--batch_size", default=4, type=int, help="Total batch size for training.")
+    parser.add_argument("--batch_size", default=32, type=int, help="Total batch size for training.")
     parser.add_argument('--outdir', required=True, help='path to output directory')
     parser.add_argument('--bert_pretrain', required=True)
     parser.add_argument('--checkpoint', required=True)
     parser.add_argument('--dropout', type=float, default=0.6, help='Dropout.')
     parser.add_argument('--no-cuda', action='store_true', default=False, help='Disables CUDA training.')
-    parser.add_argument("--bert_hidden_dim", default=768, type=int, help="Total batch size for training.")
+    parser.add_argument("--bert_hidden_dim", default=1024, type=int, help="Total batch size for training.")
     parser.add_argument("--layer", type=int, default=1, help='Graph Layer.')
     parser.add_argument("--num_labels", type=int, default=3)
     parser.add_argument("--kernel", type=int, default=21, help='Evidence num.')
@@ -74,7 +81,7 @@ if __name__ == "__main__":
     label_map = {'SUPPORTS': 0, 'REFUTES': 1, 'NOT ENOUGH INFO': 2}
     label_list = ['SUPPORTS', 'REFUTES', 'NOT ENOUGH INFO']
     args.num_labels = len(label_map)
-    tokenizer = BertTokenizer.from_pretrained(args.bert_pretrain, do_lower_case=False)
+    tokenizer = RobertaTokenizer.from_pretrained(args.bert_pretrain, do_lower_case=False)
     logger.info("loading validation set")
     validset_reader = DataLoaderTest(args.test_path, label_map, tokenizer, args, batch_size=args.batch_size)
     logger.info('initializing estimator model')

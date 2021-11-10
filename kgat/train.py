@@ -9,10 +9,10 @@ from tqdm import tqdm
 from torch.autograd import Variable
 from pytorch_pretrained_bert.tokenization import whitespace_tokenize, BasicTokenizer, BertTokenizer
 from pytorch_pretrained_bert.optimization import BertAdam
-
+from transformers import RobertaTokenizer
 from models import inference_model
 from data_loader import DataLoader
-from bert_model import BertForSequenceEncoder
+from modeling_roberta import BertForSequenceEncoder
 from torch.nn import NLLLoss
 import logging
 
@@ -50,6 +50,10 @@ def train_model(model, ori_model, args, trainset_reader, validset_reader):
     running_loss = 0.0
     t_total = int(
         trainset_reader.total_num / args.train_batch_size / args.gradient_accumulation_steps * args.num_train_epochs)
+    print("total_num", trainset_reader.total_num)
+    print("train_batch_size", args.train_batch_size)
+    print("gradient_accumulation_steps", args.gradient_accumulation_steps)
+    print("eval_step", args.eval_step)
 
     param_optimizer = list(model.named_parameters())
     no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
@@ -85,13 +89,13 @@ def train_model(model, ori_model, args, trainset_reader, validset_reader):
                 with torch.no_grad():
                     dev_accuracy = eval_model(model, validset_reader)
                     logger.info('Dev total acc: {0}'.format(dev_accuracy))
-                    if dev_accuracy > best_accuracy:
-                        best_accuracy = dev_accuracy
+                    # if dev_accuracy > best_accuracy:
+                    best_accuracy = dev_accuracy
 
-                        torch.save({'epoch': epoch,
-                                    'model': ori_model.state_dict(),
-                                    'best_accuracy': best_accuracy}, save_path + ".best.pt")
-                        logger.info("Saved best epoch {0}, best accuracy {1}".format(epoch, best_accuracy))
+                    torch.save({'epoch': epoch,
+                                'model': ori_model.state_dict(),
+                                'best_accuracy': best_accuracy}, save_path + ".new.best.pt")
+                    logger.info("Saved best epoch {0}, best accuracy {1}".format(epoch, best_accuracy))
 
 
 
@@ -104,7 +108,7 @@ if __name__ == "__main__":
     parser.add_argument('--train_path', help='train path')
     parser.add_argument('--valid_path', help='valid path')
     parser.add_argument("--train_batch_size", default=8, type=int, help="Total batch size for training.")
-    parser.add_argument("--bert_hidden_dim", default=768, type=int, help="Total batch size for training.")
+    parser.add_argument("--bert_hidden_dim", default=1024, type=int, help="Total batch size for training.")
     parser.add_argument("--valid_batch_size", default=8, type=int, help="Total batch size for predictions.")
     parser.add_argument('--outdir', required=True, help='path to output directory')
     parser.add_argument("--pool", type=str, default="att", help='Aggregating method: top, max, mean, concat, att, sum')
@@ -116,12 +120,12 @@ if __name__ == "__main__":
     parser.add_argument("--max_len", default=130, type=int,
                         help="The maximum total input sequence length after WordPiece tokenization. Sequences "
                              "longer than this will be truncated, and sequences shorter than this will be padded.")
-    parser.add_argument("--eval_step", default=500, type=int,
+    parser.add_argument("--eval_step", default=1000, type=int,
                         help="The maximum total input sequence length after WordPiece tokenization. Sequences "
                              "longer than this will be truncated, and sequences shorter than this will be padded.")
     parser.add_argument('--bert_pretrain', required=True)
     parser.add_argument('--postpretrain')
-    parser.add_argument("--learning_rate", default=5e-5, type=float, help="The initial learning rate for Adam.")
+    parser.add_argument("--learning_rate", default=3e-5, type=float, help="The initial learning rate for Adam.")
     parser.add_argument("--num_train_epochs", default=3.0, type=float,
                         help="Total number of training epochs to perform.")
     parser.add_argument("--warmup_proportion", default=0.1, type=float,
@@ -129,7 +133,7 @@ if __name__ == "__main__":
                              "of training.")
     parser.add_argument('--gradient_accumulation_steps',
                         type=int,
-                        default=8,
+                        default=4,
                         help="Number of updates steps to accumulate before performing a backward/update pass.")
     args = parser.parse_args()
 
@@ -143,7 +147,7 @@ if __name__ == "__main__":
     logger.info('Start training!')
 
     label_map = {'SUPPORTS': 0, 'REFUTES': 1, 'NOT ENOUGH INFO': 2}
-    tokenizer = BertTokenizer.from_pretrained(args.bert_pretrain, do_lower_case=False)
+    tokenizer = RobertaTokenizer.from_pretrained(args.bert_pretrain, do_lower_case=False)
     logger.info("loading training set")
     trainset_reader = DataLoader(args.train_path, label_map, tokenizer, args,
                                  batch_size=args.train_batch_size)
@@ -153,11 +157,6 @@ if __name__ == "__main__":
 
     logger.info('initializing estimator model')
     bert_model = BertForSequenceEncoder.from_pretrained(args.bert_pretrain)
-    if args.postpretrain:
-        model_dict = bert_model.state_dict()
-        pretrained_dict = torch.load(args.postpretrain)['model']
-        pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
-        model_dict.update(pretrained_dict)
     ori_model = inference_model(bert_model, args)
     model = nn.DataParallel(ori_model)
     model = model.cuda()

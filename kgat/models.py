@@ -2,9 +2,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from torch.nn import BatchNorm1d, Linear, ReLU
-from bert_model import BertForSequenceEncoder
 from torch.autograd import Variable
 import numpy as np
 
@@ -62,6 +60,7 @@ class inference_model(nn.Module):
             ReLU(True),
             Linear(128, 1)
         )
+        self.seg_embedding = nn.Embedding(2, self.bert_hidden_dim)
         self.proj_select = nn.Linear(self.kernel, 1)
         self.mu = Variable(torch.FloatTensor(kernal_mus(self.kernel)), requires_grad = False).view(1, 1, 1, 21).cuda()
         self.sigma = Variable(torch.FloatTensor(kernel_sigmas(self.kernel)), requires_grad = False).view(1, 1, 1, 21).cuda()
@@ -126,7 +125,8 @@ class inference_model(nn.Module):
         msk_tensor = msk_tensor.view(-1, self.max_len)
         inp_tensor = inp_tensor.view(-1, self.max_len)
         seg_tensor = seg_tensor.view(-1, self.max_len)
-        inputs_hiddens, inputs = self.pred_model(inp_tensor, msk_tensor, seg_tensor)
+        inputs_hiddens = self.pred_model(inp_tensor, msk_tensor)
+        inputs = inputs_hiddens[:, 0, :].squeeze(1)
         mask_text = msk_tensor.view(-1, self.max_len).float()
         mask_text[:, 0] = 0.0
         mask_claim = (1 - seg_tensor.float()) * mask_text

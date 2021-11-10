@@ -38,17 +38,18 @@ def tok2int_sent(sentence, tokenizer, max_seq_length):
         if len(tokens_a) > max_seq_length - 2:
             tokens_a = tokens_a[:(max_seq_length - 2)]
 
-    tokens =  ["[CLS]"] + tokens_a + ["[SEP]"]
+    tokens =  ["<s>"] + tokens_a + ["</s>"]
     segment_ids = [0] * len(tokens)
     if tokens_b and tokens_t:
-        tokens = tokens + tokens_t + ["[SEP]"] + tokens_b + ["[SEP]"]
+        tokens = tokens + tokens_t + ["</s>"] + tokens_b + ["</s>"]
         segment_ids += [1] * (len(tokens_b) + len(tokens_t) + 2)
     #print (tokens)
     input_ids = tokenizer.convert_tokens_to_ids(tokens)
     input_mask = [1] * len(input_ids)
     padding = [0] * (max_seq_length - len(input_ids))
+    padding_ids = [1] * (max_seq_length - len(input_ids))
 
-    input_ids += padding
+    input_ids += padding_ids
     input_mask += padding
     segment_ids += padding
 
