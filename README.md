@@ -44,6 +44,9 @@ bash train.sh
 ```
 The `train.sh` script can accept different hyperparameters. The complete list is in `kgat/train.py`.
 
+We trained the model for 3 epochs (about 27000 steps) on an Nvidia A6000 GPU. Training took 9 hours in total. The loss curve looks like the following:
+![steploss](./steploss.png)
+
 ### Inference
 We provide two weight files (one from our retraining `model.new.best.pt` and the other from the KGAT authors `model.best.pt`).
 ```
