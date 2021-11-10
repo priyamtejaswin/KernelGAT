@@ -4,7 +4,7 @@ This repository reproduces the results from [Fine-grained Fact Verification with
 
 ![model](https://github.com/thunlp/KernelGAT/blob/master/model.png)
 
-The repository is mostly the same (credit to the original KGAT authors for sharing a highly reproducible and accessible codebase). The changes/additions are listed below:
+The repository is mostly the same (credit to the original KGAT authors for sharing a highly reproducible and accessible codebase under an MIT license). The changes/additions are listed below:
 * 
 
 You can refer to the original repository (to access the original code, weights, etc) [here](https://github.com/thunlp/KernelGAT). For more information about the FEVER, please refer to [fever.ai](http://fever.ai).
